@@ -3,10 +3,14 @@
 This repo solves the problem where multiple versions of OpenCV has to coexist, typical cases of failure:
 
 * ![multiversion libs compile warning](./imgs/multiversion-lib-compile-warning.png)
-    Potentially conflicting .so lib versions. To reproduce, do not use this repo, then compile your packages that depend on both cv_bridge and libopencv-dev
+    Potentially conflicting .so lib versions
+
+  * To reproduce, do not use this repo, then compile your packages that depend on both cv_bridge and libopencv-dev
 
 * ![mixed version .so libs loaded together](./imgs/mixed-version-libs-loaded-together.png)
-    Multiple versions of OpenCV libs are loaded together. To reproduce, do not install OpenCV from source, then `mon launch` your node, start gdb debugger, and do `info sharedlibrary`
+    Multiple versions of OpenCV libs are loaded together, you can see that both `/lib/aarch64-linux/gnu/libopencv_imgcodecs.so.4.2` and `lib/aarch64-linux/gnu/libopencv_imgcodecs.so.4.5` are loaded, similar for other OpenCV libs
+
+  * To reproduce, do not install OpenCV from source, then `mon launch` your node, start gdb debugger, and do `info sharedlibrary`
 
 ## USAGE
 
