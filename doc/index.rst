@@ -1,7 +1,7 @@
 cv_bridge
 =========
 
-``cv_bridge`` contains a single class :class:`CvBridge` that converts ROS Image messages to 
+``cv_bridge`` contains a single class :class:`CvBridge` that converts ROS Image messages to
 OpenCV images.
 
 .. module:: cv_bridge

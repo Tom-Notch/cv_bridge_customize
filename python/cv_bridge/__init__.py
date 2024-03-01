@@ -1,4 +1,5 @@
-from .core import CvBridge, CvBridgeError
+from .core import CvBridge
+from .core import CvBridgeError
 
 # python bindings
 try:

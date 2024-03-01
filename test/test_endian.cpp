@@ -23,7 +23,9 @@ TEST(CvBridgeTest, endianness)
     msg.is_bigendian = true;
     *(data++) = native_to_big(static_cast<int32_t>(1));
     *data = native_to_big(static_cast<int32_t>(2));
-  } else {
+  }
+  else
+  {
     msg.is_bigendian = false;
     *(data++) = native_to_little(static_cast<int32_t>(1));
     *data = native_to_little(static_cast<int32_t>(2));

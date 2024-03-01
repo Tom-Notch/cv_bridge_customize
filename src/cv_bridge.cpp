@@ -1,37 +1,37 @@
 /*********************************************************************
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2011, Willow Garage, Inc.
-*  Copyright (c) 2015, Tal Regev.
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of the Willow Garage nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*********************************************************************/
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2011, Willow Garage, Inc.
+ *  Copyright (c) 2015, Tal Regev.
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the Willow Garage nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *********************************************************************/
 
 #include "boost/endian/conversion.hpp"
 
@@ -50,20 +50,33 @@
 
 namespace enc = sensor_msgs::image_encodings;
 
-namespace cv_bridge {
+namespace cv_bridge
+{
 
-static int depthStrToInt(const std::string depth) {
-  if (depth == "8U") {
+static int depthStrToInt(const std::string depth)
+{
+  if (depth == "8U")
+  {
     return 0;
-  } else if (depth == "8S") {
+  }
+  else if (depth == "8S")
+  {
     return 1;
-  } else if (depth == "16U") {
+  }
+  else if (depth == "16U")
+  {
     return 2;
-  } else if (depth == "16S") {
+  }
+  else if (depth == "16S")
+  {
     return 3;
-  } else if (depth == "32S") {
+  }
+  else if (depth == "32S")
+  {
     return 4;
-  } else if (depth == "32F") {
+  }
+  else if (depth == "32F")
+  {
     return 5;
   }
   return 6;
@@ -72,40 +85,61 @@ static int depthStrToInt(const std::string depth) {
 int getCvType(const std::string& encoding)
 {
   // Check for the most common encodings first
-  if (encoding == enc::BGR8)   return CV_8UC3;
-  if (encoding == enc::MONO8)  return CV_8UC1;
-  if (encoding == enc::RGB8)   return CV_8UC3;
-  if (encoding == enc::MONO16) return CV_16UC1;
-  if (encoding == enc::BGR16)  return CV_16UC3;
-  if (encoding == enc::RGB16)  return CV_16UC3;
-  if (encoding == enc::BGRA8)  return CV_8UC4;
-  if (encoding == enc::RGBA8)  return CV_8UC4;
-  if (encoding == enc::BGRA16) return CV_16UC4;
-  if (encoding == enc::RGBA16) return CV_16UC4;
+  if (encoding == enc::BGR8)
+    return CV_8UC3;
+  if (encoding == enc::MONO8)
+    return CV_8UC1;
+  if (encoding == enc::RGB8)
+    return CV_8UC3;
+  if (encoding == enc::MONO16)
+    return CV_16UC1;
+  if (encoding == enc::BGR16)
+    return CV_16UC3;
+  if (encoding == enc::RGB16)
+    return CV_16UC3;
+  if (encoding == enc::BGRA8)
+    return CV_8UC4;
+  if (encoding == enc::RGBA8)
+    return CV_8UC4;
+  if (encoding == enc::BGRA16)
+    return CV_16UC4;
+  if (encoding == enc::RGBA16)
+    return CV_16UC4;
 
   // For bayer, return one-channel
-  if (encoding == enc::BAYER_RGGB8) return CV_8UC1;
-  if (encoding == enc::BAYER_BGGR8) return CV_8UC1;
-  if (encoding == enc::BAYER_GBRG8) return CV_8UC1;
-  if (encoding == enc::BAYER_GRBG8) return CV_8UC1;
-  if (encoding == enc::BAYER_RGGB16) return CV_16UC1;
-  if (encoding == enc::BAYER_BGGR16) return CV_16UC1;
-  if (encoding == enc::BAYER_GBRG16) return CV_16UC1;
-  if (encoding == enc::BAYER_GRBG16) return CV_16UC1;
+  if (encoding == enc::BAYER_RGGB8)
+    return CV_8UC1;
+  if (encoding == enc::BAYER_BGGR8)
+    return CV_8UC1;
+  if (encoding == enc::BAYER_GBRG8)
+    return CV_8UC1;
+  if (encoding == enc::BAYER_GRBG8)
+    return CV_8UC1;
+  if (encoding == enc::BAYER_RGGB16)
+    return CV_16UC1;
+  if (encoding == enc::BAYER_BGGR16)
+    return CV_16UC1;
+  if (encoding == enc::BAYER_GBRG16)
+    return CV_16UC1;
+  if (encoding == enc::BAYER_GRBG16)
+    return CV_16UC1;
 
   // Miscellaneous
-  if (encoding == enc::YUV422) return CV_8UC2;
+  if (encoding == enc::YUV422)
+    return CV_8UC2;
 
   // Check all the generic content encodings
   boost::cmatch m;
 
   if (boost::regex_match(encoding.c_str(), m,
-        boost::regex("(8U|8S|16U|16S|32S|32F|64F)C([0-9]+)"))) {
+                         boost::regex("(8U|8S|16U|16S|32S|32F|64F)C([0-9]+)")))
+  {
     return CV_MAKETYPE(depthStrToInt(m[1].str()), atoi(m[2].str().c_str()));
   }
 
   if (boost::regex_match(encoding.c_str(), m,
-        boost::regex("(8U|8S|16U|16S|32S|32F|64F)"))) {
+                         boost::regex("(8U|8S|16U|16S|32S|32F|64F)")))
+  {
     return CV_MAKETYPE(depthStrToInt(m[1].str()), 1);
   }
 
@@ -114,21 +148,44 @@ int getCvType(const std::string& encoding)
 
 /// @cond DOXYGEN_IGNORE
 
-enum Encoding { INVALID = -1, GRAY = 0, RGB, BGR, RGBA, BGRA, YUV422, BAYER_RGGB, BAYER_BGGR, BAYER_GBRG, BAYER_GRBG};
+enum Encoding
+{
+  INVALID = -1,
+  GRAY = 0,
+  RGB,
+  BGR,
+  RGBA,
+  BGRA,
+  YUV422,
+  BAYER_RGGB,
+  BAYER_BGGR,
+  BAYER_GBRG,
+  BAYER_GRBG
+};
 
 Encoding getEncoding(const std::string& encoding)
 {
-  if ((encoding == enc::MONO8) || (encoding == enc::MONO16)) return GRAY;
-  if ((encoding == enc::BGR8) || (encoding == enc::BGR16))  return BGR;
-  if ((encoding == enc::RGB8) || (encoding == enc::RGB16))  return RGB;
-  if ((encoding == enc::BGRA8) || (encoding == enc::BGRA16))  return BGRA;
-  if ((encoding == enc::RGBA8) || (encoding == enc::RGBA16))  return RGBA;
-  if (encoding == enc::YUV422) return YUV422;
+  if ((encoding == enc::MONO8) || (encoding == enc::MONO16))
+    return GRAY;
+  if ((encoding == enc::BGR8) || (encoding == enc::BGR16))
+    return BGR;
+  if ((encoding == enc::RGB8) || (encoding == enc::RGB16))
+    return RGB;
+  if ((encoding == enc::BGRA8) || (encoding == enc::BGRA16))
+    return BGRA;
+  if ((encoding == enc::RGBA8) || (encoding == enc::RGBA16))
+    return RGBA;
+  if (encoding == enc::YUV422)
+    return YUV422;
 
-  if ((encoding == enc::BAYER_RGGB8) || (encoding == enc::BAYER_RGGB16)) return BAYER_RGGB;
-  if ((encoding == enc::BAYER_BGGR8) || (encoding == enc::BAYER_BGGR16)) return BAYER_BGGR;
-  if ((encoding == enc::BAYER_GBRG8) || (encoding == enc::BAYER_GBRG16)) return BAYER_GBRG;
-  if ((encoding == enc::BAYER_GRBG8) || (encoding == enc::BAYER_GRBG16)) return BAYER_GRBG;
+  if ((encoding == enc::BAYER_RGGB8) || (encoding == enc::BAYER_RGGB16))
+    return BAYER_RGGB;
+  if ((encoding == enc::BAYER_BGGR8) || (encoding == enc::BAYER_BGGR16))
+    return BAYER_BGGR;
+  if ((encoding == enc::BAYER_GBRG8) || (encoding == enc::BAYER_GBRG16))
+    return BAYER_GBRG;
+  if ((encoding == enc::BAYER_GRBG8) || (encoding == enc::BAYER_GRBG16))
+    return BAYER_GRBG;
 
   // We don't support conversions to/from other types
   return INVALID;
@@ -140,10 +197,11 @@ static const int SAME_FORMAT = -1;
  * The key is a pair: <FromFormat, ToFormat> and the value a succession of OpenCV code conversion
  * It's not efficient code but it is only called once and the structure is small enough
  */
-std::map<std::pair<Encoding, Encoding>, std::vector<int> > getConversionCodes() {
+std::map<std::pair<Encoding, Encoding>, std::vector<int> > getConversionCodes()
+{
   std::map<std::pair<Encoding, Encoding>, std::vector<int> > res;
-  for(int i=0; i<=5; ++i)
-    res[std::pair<Encoding, Encoding>(Encoding(i),Encoding(i))].push_back(SAME_FORMAT);
+  for (int i = 0; i <= 5; ++i)
+    res[std::pair<Encoding, Encoding>(Encoding(i), Encoding(i))].push_back(SAME_FORMAT);
 
   res[std::make_pair(GRAY, RGB)].push_back(cv::COLOR_GRAY2RGB);
   res[std::make_pair(GRAY, BGR)].push_back(cv::COLOR_GRAY2BGR);
@@ -208,7 +266,8 @@ const std::vector<int> getConversionCode(std::string src_encoding, std::string d
 
   // If we have no color info in the source, we can only convert to the same format which
   // was resolved in the previous condition. Otherwise, fail
-  if (!is_src_color_format) {
+  if (!is_src_color_format)
+  {
     if (is_dst_color_format)
       throw Exception("[" + src_encoding + "] is not a color format. but [" + dst_encoding +
                       "] is. The conversion does not make sense");
@@ -219,7 +278,8 @@ const std::vector<int> getConversionCode(std::string src_encoding, std::string d
 
   // If we are converting from a color type to a non color type, we can only do so if we stick
   // to the number of channels
-  if (!is_dst_color_format) {
+  if (!is_dst_color_format)
+  {
     if (!is_num_channels_the_same)
       throw Exception("[" + src_encoding + "] is a color format but [" + dst_encoding + "] " +
                       "is not so they must have the same OpenCV type, CV_8UC3, CV16UC1 ....");
@@ -233,7 +293,7 @@ const std::vector<int> getConversionCode(std::string src_encoding, std::string d
   std::map<std::pair<Encoding, Encoding>, std::vector<int> >::const_iterator val = CONVERSION_CODES.find(key);
   if (val == CONVERSION_CODES.end())
     throw Exception("Unsupported conversion from [" + src_encoding +
-                      "] to [" + dst_encoding + "]");
+                    "] to [" + dst_encoding + "]");
 
   // And deal with depth differences if the colors are different
   std::vector<int> res = val->second;
@@ -255,16 +315,14 @@ cv::Mat matFromImage(const sensor_msgs::Image& source)
   if (source.step < source.width * byte_depth * num_channels)
   {
     std::stringstream ss;
-    ss << "Image is wrongly formed: step < width * byte_depth * num_channels  or  " << source.step << " != " <<
-        source.width << " * " << byte_depth << " * " << num_channels;
+    ss << "Image is wrongly formed: step < width * byte_depth * num_channels  or  " << source.step << " != " << source.width << " * " << byte_depth << " * " << num_channels;
     throw Exception(ss.str());
   }
 
   if (source.height * source.step != source.data.size())
   {
     std::stringstream ss;
-    ss << "Image is wrongly formed: height * step != size  or  " << source.height << " * " <<
-              source.step << " != " << source.data.size();
+    ss << "Image is wrongly formed: height * step != size  or  " << source.height << " * " << source.step << " != " << source.data.size();
     throw Exception(ss.str());
   }
 
@@ -276,17 +334,17 @@ cv::Mat matFromImage(const sensor_msgs::Image& source)
     return mat;
 
   // Otherwise, reinterpret the data as bytes and switch the channels accordingly
-  mat = cv::Mat(source.height, source.width, CV_MAKETYPE(CV_8U, num_channels*byte_depth),
+  mat = cv::Mat(source.height, source.width, CV_MAKETYPE(CV_8U, num_channels * byte_depth),
                 const_cast<uchar*>(&source.data[0]), source.step);
   cv::Mat mat_swap(source.height, source.width, mat.type());
 
   std::vector<int> fromTo;
-  fromTo.reserve(num_channels*byte_depth);
-  for(int i = 0; i < num_channels; ++i)
-    for(int j = 0; j < byte_depth; ++j)
+  fromTo.reserve(num_channels * byte_depth);
+  for (int i = 0; i < num_channels; ++i)
+    for (int j = 0; j < byte_depth; ++j)
     {
-      fromTo.push_back(byte_depth*i + j);
-      fromTo.push_back(byte_depth*i + byte_depth - 1 - j);
+      fromTo.push_back(byte_depth * i + j);
+      fromTo.push_back(byte_depth * i + byte_depth - 1 - j);
     }
   cv::mixChannels(std::vector<cv::Mat>(1, mat), std::vector<cv::Mat>(1, mat_swap), fromTo);
 
@@ -305,7 +363,7 @@ CvImagePtr toCvCopyImpl(const cv::Mat& source,
   // Copy metadata
   CvImagePtr ptr = boost::make_shared<CvImage>();
   ptr->header = src_header;
-  
+
   // Copy to new buffer if same encoding requested
   if (dst_encoding.empty() || dst_encoding == src_encoding)
   {
@@ -318,7 +376,8 @@ CvImagePtr toCvCopyImpl(const cv::Mat& source,
     const std::vector<int> conversion_codes = getConversionCode(src_encoding, dst_encoding);
     cv::Mat image1 = source;
     cv::Mat image2;
-    for(size_t i=0; i<conversion_codes.size(); ++i) {
+    for (size_t i = 0; i < conversion_codes.size(); ++i)
+    {
       int conversion_code = conversion_codes[i];
       if (conversion_code == SAME_FORMAT)
       {
@@ -415,7 +474,7 @@ CvImageConstPtr toCvShare(const sensor_msgs::Image& source,
 {
   // If the encoding different or the endianness different, you have to copy
   if ((!encoding.empty() && source.encoding != encoding) || (source.is_bigendian &&
-      (boost::endian::order::native != boost::endian::order::big)))
+                                                             (boost::endian::order::native != boost::endian::order::big)))
     return toCvCopy(source, encoding);
 
   CvImagePtr ptr = boost::make_shared<CvImage>();
@@ -437,51 +496,52 @@ CvImagePtr cvtColor(const CvImageConstPtr& source,
 sensor_msgs::CompressedImagePtr CvImage::toCompressedImageMsg(const Format dst_format) const
 {
   sensor_msgs::CompressedImagePtr ptr = boost::make_shared<sensor_msgs::CompressedImage>();
-  toCompressedImageMsg(*ptr,dst_format);
+  toCompressedImageMsg(*ptr, dst_format);
   return ptr;
 }
 
-std::string getFormat(Format format) {
+std::string getFormat(Format format)
+{
+  switch (format)
+  {
+    case DIB:
+      return "dib";
+    case BMP:
+      return "bmp";
+    case JPG:
+      return "jpg";
+    case JPEG:
+      return "jpeg";
+    case JPE:
+      return "jpe";
+    case JP2:
+      return "jp2";
+    case PNG:
+      return "png";
+    case PBM:
+      return "pbm";
+    case PGM:
+      return "pgm";
+    case PPM:
+      return "ppm";
+    case RAS:
+      return "ras";
+    case SR:
+      return "sr";
+    case TIF:
+      return "tif";
+    case TIFF:
+      return "tiff";
+  }
 
-	switch (format) {
-		case DIB:
-			return "dib";
-		case BMP:
-			return "bmp";
-		case JPG:
-			return "jpg";
-		case JPEG:
-			return "jpeg";
-		case JPE:
-			return "jpe";
-		case JP2:
-			return "jp2";
-		case PNG:
-			return "png";
-		case PBM:
-			return "pbm";
-		case PGM:
-			return "pgm";
-		case PPM:
-			return "ppm";
-		case RAS:
-			return "ras";
-		case SR:
-			return "sr";
-		case TIF:
-			return "tif";
-		case TIFF:
-			return "tiff";
-	}
-
-	throw Exception("Unrecognized image format");
+  throw Exception("Unrecognized image format");
 }
 
 void CvImage::toCompressedImageMsg(sensor_msgs::CompressedImage& ros_image, const Format dst_format) const
 {
   ros_image.header = header;
   cv::Mat image;
-  if (encoding == enc::BGR8 || encoding == enc::BGRA8  || encoding == enc::MONO8 || encoding == enc::MONO16)
+  if (encoding == enc::BGR8 || encoding == enc::BGRA8 || encoding == enc::MONO8 || encoding == enc::MONO16)
   {
     image = this->image;
   }
@@ -519,7 +579,8 @@ CvImagePtr toCvCopy(const sensor_msgs::CompressedImage& source, const std::strin
   // Loads as BGR or BGRA.
   const cv::Mat rgb_a = cv::imdecode(in, cv::IMREAD_UNCHANGED);
 
-  if (encoding != enc::MONO16) {
+  if (encoding != enc::MONO16)
+  {
     switch (rgb_a.channels())
     {
       case 4:
@@ -535,7 +596,8 @@ CvImagePtr toCvCopy(const sensor_msgs::CompressedImage& source, const std::strin
         return CvImagePtr();
     }
   }
-  else {
+  else
+  {
     return toCvCopyImpl(rgb_a, source.header, enc::MONO16, encoding);
   }
 }
@@ -587,7 +649,6 @@ CvImageConstPtr cvtColorForDisplay(const CvImageConstPtr& source,
     if ((!enc::isColor(encoding_out) && !enc::isMono(encoding_out)) ||
         (enc::bitDepth(encoding) != 8))
       throw Exception("cv_bridge.cvtColorForDisplay() does not have an output encoding that is color or mono, and has is bit in depth");
-
   }
 
   // Convert label to bgr image
@@ -598,10 +659,13 @@ CvImageConstPtr cvtColorForDisplay(const CvImageConstPtr& source,
     result->header = source->header;
     result->encoding = encoding;
     result->image = cv::Mat(source->image.rows, source->image.cols, CV_8UC3);
-    for (size_t j = 0; j < source->image.rows; ++j) {
-      for (size_t i = 0; i < source->image.cols; ++i) {
+    for (size_t j = 0; j < source->image.rows; ++j)
+    {
+      for (size_t i = 0; i < source->image.cols; ++i)
+      {
         int label = source->image.at<int>(j, i);
-        if (label == options.bg_label) {  // background label
+        if (label == options.bg_label)
+        {  // background label
           result->image.at<cv::Vec3b>(j, i) = cv::Vec3b(0, 0, 0);
         }
         else
@@ -627,10 +691,12 @@ CvImageConstPtr cvtColorForDisplay(const CvImageConstPtr& source,
       if (enc::bitDepth(encoding) == 1)
       {
         result->image = cv::Mat(source->image.size(), CV_8UC1);
-        result->image.setTo(255./2.);
-      } else {
+        result->image.setTo(255. / 2.);
+      }
+      else
+      {
         result->image = cv::Mat(source->image.size(), CV_8UC3);
-        result->image.setTo(cv::Scalar(1., 1., 1.)*255./2.);
+        result->image.setTo(cv::Scalar(1., 1., 1.) * 255. / 2.);
       }
       return result;
     }
@@ -642,21 +708,26 @@ CvImageConstPtr cvtColorForDisplay(const CvImageConstPtr& source,
       throw Exception("cv_bridge.cvtColorForDisplay() scaling for images with more than one channel is unsupported");
     CvImagePtr img_scaled(new CvImage());
     img_scaled->header = source->header;
-    if (options.colormap == -1) {
+    if (options.colormap == -1)
+    {
       img_scaled->encoding = enc::MONO8;
-      cv::Mat(source->image-min_image_value).convertTo(img_scaled->image, CV_8UC1, 255.0 /
-        (max_image_value - min_image_value));
-    } else {
+      cv::Mat(source->image - min_image_value).convertTo(img_scaled->image, CV_8UC1, 255.0 / (max_image_value - min_image_value));
+    }
+    else
+    {
       img_scaled->encoding = enc::BGR8;
-      cv::Mat(source->image-min_image_value).convertTo(img_scaled->image, CV_8UC3, 255.0 /
-        (max_image_value - min_image_value));
+      cv::Mat(source->image - min_image_value).convertTo(img_scaled->image, CV_8UC3, 255.0 / (max_image_value - min_image_value));
       cv::applyColorMap(img_scaled->image, img_scaled->image, options.colormap);
       // Fill black color to the nan region.
-      if (source->encoding == enc::TYPE_32FC1) {
-        for (size_t j = 0; j < source->image.rows; ++j) {
-          for (size_t i = 0; i < source->image.cols; ++i) {
+      if (source->encoding == enc::TYPE_32FC1)
+      {
+        for (size_t j = 0; j < source->image.rows; ++j)
+        {
+          for (size_t i = 0; i < source->image.cols; ++i)
+          {
             float float_value = source->image.at<float>(j, i);
-            if (std::isnan(float_value)) {
+            if (std::isnan(float_value))
+            {
               img_scaled->image.at<cv::Vec3b>(j, i) = cv::Vec3b(0, 0, 0);
             }
           }
@@ -701,4 +772,4 @@ CvImageConstPtr cvtColorForDisplay(const CvImageConstPtr& source,
   }
 }
 
-} //namespace cv_bridge
+}  // namespace cv_bridge

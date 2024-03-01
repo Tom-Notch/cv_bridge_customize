@@ -67,4 +67,4 @@
 #endif
 #endif
 
-#endif // END HEADER GUARD
+#endif  // END HEADER GUARD

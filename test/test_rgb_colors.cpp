@@ -2,7 +2,6 @@
 #include <opencv2/opencv.hpp>
 #include <gtest/gtest.h>
 
-
 TEST(RGBColors, testGetRGBColor)
 {
   cv::Vec3d color;

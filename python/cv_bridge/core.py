@@ -30,15 +30,16 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import sys
 
 import sensor_msgs.msg
-import sys
 
 
 class CvBridgeError(TypeError):
     """
     This is the error raised by :class:`cv_bridge.CvBridge` methods when they fail.
     """
+
     pass
 
 
@@ -65,27 +66,45 @@ class CvBridge(object):
 
     def __init__(self):
         import cv2
+
         self.cvtype_to_name = {}
-        self.cvdepth_to_numpy_depth = {cv2.CV_8U: 'uint8', cv2.CV_8S: 'int8', cv2.CV_16U: 'uint16',
-                                       cv2.CV_16S: 'int16', cv2.CV_32S:'int32', cv2.CV_32F:'float32',
-                                       cv2.CV_64F: 'float64'}
+        self.cvdepth_to_numpy_depth = {
+            cv2.CV_8U: "uint8",
+            cv2.CV_8S: "int8",
+            cv2.CV_16U: "uint16",
+            cv2.CV_16S: "int16",
+            cv2.CV_32S: "int32",
+            cv2.CV_32F: "float32",
+            cv2.CV_64F: "float64",
+        }
 
         for t in ["8U", "8S", "16U", "16S", "32S", "32F", "64F"]:
             for c in [1, 2, 3, 4]:
                 nm = "%sC%d" % (t, c)
                 self.cvtype_to_name[getattr(cv2, "CV_%s" % nm)] = nm
 
-        self.numpy_type_to_cvtype = {'uint8': '8U', 'int8': '8S', 'uint16': '16U',
-                                        'int16': '16S', 'int32': '32S', 'float32': '32F',
-                                        'float64': '64F'}
-        self.numpy_type_to_cvtype.update(dict((v, k) for (k, v) in self.numpy_type_to_cvtype.items()))
+        self.numpy_type_to_cvtype = {
+            "uint8": "8U",
+            "int8": "8S",
+            "uint16": "16U",
+            "int16": "16S",
+            "int32": "32S",
+            "float32": "32F",
+            "float64": "64F",
+        }
+        self.numpy_type_to_cvtype.update(
+            dict((v, k) for (k, v) in self.numpy_type_to_cvtype.items())
+        )
 
     def dtype_with_channels_to_cvtype2(self, dtype, n_channels):
-        return '%sC%d' % (self.numpy_type_to_cvtype[dtype.name], n_channels)
+        return "%sC%d" % (self.numpy_type_to_cvtype[dtype.name], n_channels)
 
     def cvtype2_to_dtype_with_channels(self, cvtype):
         from cv_bridge.boost.cv_bridge_boost import CV_MAT_CNWrap, CV_MAT_DEPTHWrap
-        return self.cvdepth_to_numpy_depth[CV_MAT_DEPTHWrap(cvtype)], CV_MAT_CNWrap(cvtype)
+
+        return self.cvdepth_to_numpy_depth[CV_MAT_DEPTHWrap(cvtype)], CV_MAT_CNWrap(
+            cvtype
+        )
 
     def encoding_to_cvtype2(self, encoding):
         from cv_bridge.boost.cv_bridge_boost import getCvType
@@ -98,7 +117,7 @@ class CvBridge(object):
     def encoding_to_dtype_with_channels(self, encoding):
         return self.cvtype2_to_dtype_with_channels(self.encoding_to_cvtype2(encoding))
 
-    def compressed_imgmsg_to_cv2(self, cmprs_img_msg, desired_encoding = "passthrough"):
+    def compressed_imgmsg_to_cv2(self, cmprs_img_msg, desired_encoding="passthrough"):
         """
         Convert a sensor_msgs::CompressedImage message to an OpenCV :cpp:type:`cv::Mat`.
 
@@ -122,8 +141,9 @@ class CvBridge(object):
         import numpy as np
 
         str_msg = cmprs_img_msg.data
-        buf = np.ndarray(shape=(1, len(str_msg)),
-                          dtype=np.uint8, buffer=cmprs_img_msg.data)
+        buf = np.ndarray(
+            shape=(1, len(str_msg)), dtype=np.uint8, buffer=cmprs_img_msg.data
+        )
         im = cv2.imdecode(buf, cv2.IMREAD_UNCHANGED)
 
         if desired_encoding == "passthrough":
@@ -138,7 +158,7 @@ class CvBridge(object):
 
         return res
 
-    def imgmsg_to_cv2(self, img_msg, desired_encoding = "passthrough"):
+    def imgmsg_to_cv2(self, img_msg, desired_encoding="passthrough"):
         """
         Convert a sensor_msgs::Image message to an OpenCV :cpp:type:`cv::Mat`.
 
@@ -160,21 +180,29 @@ class CvBridge(object):
         """
         import cv2
         import numpy as np
+
         dtype, n_channels = self.encoding_to_dtype_with_channels(img_msg.encoding)
         dtype = np.dtype(dtype)
-        dtype = dtype.newbyteorder('>' if img_msg.is_bigendian else '<')
+        dtype = dtype.newbyteorder(">" if img_msg.is_bigendian else "<")
         if n_channels == 1:
-            im = np.ndarray(shape=(img_msg.height, img_msg.width),
-                           dtype=dtype, buffer=img_msg.data)
+            im = np.ndarray(
+                shape=(img_msg.height, img_msg.width), dtype=dtype, buffer=img_msg.data
+            )
         else:
-            if(type(img_msg.data) == str):
-                im = np.ndarray(shape=(img_msg.height, img_msg.width, n_channels),
-                               dtype=dtype, buffer=img_msg.data.encode())
+            if type(img_msg.data) == str:
+                im = np.ndarray(
+                    shape=(img_msg.height, img_msg.width, n_channels),
+                    dtype=dtype,
+                    buffer=img_msg.data.encode(),
+                )
             else:
-                im = np.ndarray(shape=(img_msg.height, img_msg.width, n_channels),
-                               dtype=dtype, buffer=img_msg.data)
+                im = np.ndarray(
+                    shape=(img_msg.height, img_msg.width, n_channels),
+                    dtype=dtype,
+                    buffer=img_msg.data,
+                )
         # If the byt order is different between the message and the system.
-        if img_msg.is_bigendian == (sys.byteorder == 'little'):
+        if img_msg.is_bigendian == (sys.byteorder == "little"):
             im = im.byteswap().newbyteorder()
 
         if desired_encoding == "passthrough":
@@ -189,7 +217,7 @@ class CvBridge(object):
 
         return res
 
-    def cv2_to_compressed_imgmsg(self, cvim, dst_format = "jpg"):
+    def cv2_to_compressed_imgmsg(self, cvim, dst_format="jpg"):
         """
         Convert an OpenCV :cpp:type:`cv::Mat` type to a ROS sensor_msgs::CompressedImage message.
 
@@ -214,11 +242,12 @@ class CvBridge(object):
         """
         import cv2
         import numpy as np
+
         if not isinstance(cvim, (np.ndarray, np.generic)):
-            raise TypeError('Your input type is not a numpy array')
+            raise TypeError("Your input type is not a numpy array")
         cmprs_img_msg = sensor_msgs.msg.CompressedImage()
         cmprs_img_msg.format = dst_format
-        ext_format = '.' + dst_format
+        ext_format = "." + dst_format
         try:
             cmprs_img_msg.data = np.array(cv2.imencode(ext_format, cvim)[1]).tostring()
         except RuntimeError as e:
@@ -226,7 +255,7 @@ class CvBridge(object):
 
         return cmprs_img_msg
 
-    def cv2_to_imgmsg(self, cvim, encoding = "passthrough", header = None):
+    def cv2_to_imgmsg(self, cvim, encoding="passthrough", header=None):
         """
         Convert an OpenCV :cpp:type:`cv::Mat` type to a ROS sensor_msgs::Image message.
 
@@ -247,8 +276,9 @@ class CvBridge(object):
         """
         import cv2
         import numpy as np
+
         if not isinstance(cvim, (np.ndarray, np.generic)):
-            raise TypeError('Your input type is not a numpy array')
+            raise TypeError("Your input type is not a numpy array")
         img_msg = sensor_msgs.msg.Image()
         img_msg.height = cvim.shape[0]
         img_msg.width = cvim.shape[1]
@@ -264,8 +294,11 @@ class CvBridge(object):
             img_msg.encoding = encoding
             # Verify that the supplied encoding is compatible with the type of the OpenCV image
             if self.cvtype_to_name[self.encoding_to_cvtype2(encoding)] != cv_type:
-                raise CvBridgeError("encoding specified as %s, but image has incompatible type %s" % (encoding, cv_type))
-        if cvim.dtype.byteorder == '>':
+                raise CvBridgeError(
+                    "encoding specified as %s, but image has incompatible type %s"
+                    % (encoding, cv_type)
+                )
+        if cvim.dtype.byteorder == ">":
             img_msg.is_bigendian = True
         img_msg.data = cvim.tostring()
         img_msg.step = len(img_msg.data) // img_msg.height
