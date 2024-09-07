@@ -1,6 +1,7 @@
-#include "cv_bridge/cv_bridge.h"
-#include <sensor_msgs/image_encodings.h>
 #include <gtest/gtest.h>
+#include <sensor_msgs/image_encodings.hpp>
+
+#include "cv_bridge/cv_bridge.h"
 
 // Tests conversion of non-continuous cv::Mat. #5206
 TEST(CvBridgeTest, NonContinuous)
@@ -12,18 +13,18 @@ TEST(CvBridgeTest, NonContinuous)
   cvi.encoding = sensor_msgs::image_encodings::MONO16;
   cvi.image = partial;
 
-  sensor_msgs::ImagePtr msg = cvi.toImageMsg();
-  EXPECT_EQ(msg->height, 8);
-  EXPECT_EQ(msg->width, 3);
+  sensor_msgs::msg::Image::SharedPtr msg = cvi.toImageMsg();
+  EXPECT_EQ(static_cast<int>(msg->height), 8);
+  EXPECT_EQ(static_cast<int>(msg->width), 3);
   EXPECT_EQ(msg->encoding, cvi.encoding);
-  EXPECT_EQ(msg->step, 6);
+  EXPECT_EQ(static_cast<int>(msg->step), 6);
 }
 
 TEST(CvBridgeTest, ChannelOrder)
 {
   cv::Mat_<uint16_t> mat(200, 200);
   mat.setTo(cv::Scalar(1000, 0, 0, 0));
-  sensor_msgs::ImagePtr image(new sensor_msgs::Image());
+  sensor_msgs::msg::Image::SharedPtr image(new sensor_msgs::msg::Image());
 
   image = cv_bridge::CvImage(image->header, sensor_msgs::image_encodings::MONO16, mat).toImageMsg();
 
@@ -45,7 +46,7 @@ TEST(CvBridgeTest, ChannelOrder)
 
 TEST(CvBridgeTest, initialization)
 {
-  sensor_msgs::Image image;
+  sensor_msgs::msg::Image image;
   cv_bridge::CvImagePtr cv_ptr;
 
   image.encoding = "bgr8";
@@ -76,7 +77,7 @@ TEST(CvBridgeTest, initialization)
 TEST(CvBridgeTest, imageMessageStep)
 {
   // Test 1: image step is padded
-  sensor_msgs::Image image;
+  sensor_msgs::msg::Image image;
   cv_bridge::CvImagePtr cv_ptr;
 
   image.encoding = "mono8";
@@ -91,7 +92,7 @@ TEST(CvBridgeTest, imageMessageStep)
   ASSERT_EQ(220, cv_ptr->image.rows);
   ASSERT_EQ(200, cv_ptr->image.cols);
   // OpenCV copyTo argument removes the stride
-  ASSERT_EQ(200, cv_ptr->image.step[0]);
+  ASSERT_EQ(200, static_cast<int>(cv_ptr->image.step[0]));
 
   // Test 2: image step is invalid
   image.step = 199;
@@ -105,12 +106,12 @@ TEST(CvBridgeTest, imageMessageStep)
   ASSERT_NO_THROW(cv_ptr = cv_bridge::toCvCopy(image, "mono8"));
   ASSERT_EQ(220, cv_ptr->image.rows);
   ASSERT_EQ(200, cv_ptr->image.cols);
-  ASSERT_EQ(200, cv_ptr->image.step[0]);
+  ASSERT_EQ(200, static_cast<int>(cv_ptr->image.step[0]));
 }
 
 TEST(CvBridgeTest, imageMessageConversion)
 {
-  sensor_msgs::Image imgmsg;
+  sensor_msgs::msg::Image imgmsg;
   cv_bridge::CvImagePtr cv_ptr;
   imgmsg.height = 220;
   imgmsg.width = 200;
@@ -121,8 +122,8 @@ TEST(CvBridgeTest, imageMessageConversion)
   imgmsg.step = imgmsg.width * 32 / 8 * 1;
   imgmsg.data.resize(imgmsg.height * imgmsg.step);
   ASSERT_NO_THROW(cv_ptr = cv_bridge::toCvCopy(imgmsg, imgmsg.encoding));
-  ASSERT_EQ(imgmsg.height, cv_ptr->image.rows);
-  ASSERT_EQ(imgmsg.width, cv_ptr->image.cols);
+  ASSERT_EQ(static_cast<int>(imgmsg.height), cv_ptr->image.rows);
+  ASSERT_EQ(static_cast<int>(imgmsg.width), cv_ptr->image.cols);
   ASSERT_EQ(1, cv_ptr->image.channels());
   ASSERT_EQ(imgmsg.step, cv_ptr->image.step[0]);
 
@@ -131,8 +132,8 @@ TEST(CvBridgeTest, imageMessageConversion)
   imgmsg.step = imgmsg.width * 32 / 8 * 10;
   imgmsg.data.resize(imgmsg.height * imgmsg.step);
   ASSERT_NO_THROW(cv_ptr = cv_bridge::toCvCopy(imgmsg, imgmsg.encoding));
-  ASSERT_EQ(imgmsg.height, cv_ptr->image.rows);
-  ASSERT_EQ(imgmsg.width, cv_ptr->image.cols);
+  ASSERT_EQ(static_cast<int>(imgmsg.height), cv_ptr->image.rows);
+  ASSERT_EQ(static_cast<int>(imgmsg.width), cv_ptr->image.cols);
   ASSERT_EQ(10, cv_ptr->image.channels());
   ASSERT_EQ(imgmsg.step, cv_ptr->image.step[0]);
 }

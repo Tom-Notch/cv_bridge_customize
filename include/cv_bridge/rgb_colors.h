@@ -1,9 +1,9 @@
-// -*- mode: c++ -*-
 /*********************************************************************
  * Original color definition is at scikit-image distributed with
  * following license disclaimer:
  *
  * Copyright (C) 2011, the scikit-image team
+ * Copyright (c) 2018 Intel Corporation.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-#ifndef CV_BRIDGE_RGB_COLORS_H_
-#define CV_BRIDGE_RGB_COLORS_H_
+#ifndef CV_BRIDGE__RGB_COLORS_H_
+#define CV_BRIDGE__RGB_COLORS_H_
 
-#include <opencv2/core/matx.hpp>
+#include <opencv2/opencv.hpp>
+#include <cv_bridge/cv_bridge_export.h>
 
 namespace cv_bridge
 {
@@ -202,10 +203,10 @@ enum Colors
  * @brief
  * get rgb color with enum.
  */
-cv::Vec3d getRGBColor(const int color);
+CV_BRIDGE_EXPORT cv::Vec3d getRGBColor(const int color);
 
 }  // namespace rgb_colors
 
 }  // namespace cv_bridge
 
-#endif
+#endif  // CV_BRIDGE__RGB_COLORS_H_

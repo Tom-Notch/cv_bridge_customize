@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2011, Willow Garage, Inc.
 # Copyright (c) 2016, Tal Regev.
+# Copyright (c) 2018 Intel Corporation.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,15 +31,14 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+####################################################################
 import sys
 
 import sensor_msgs.msg
 
 
 class CvBridgeError(TypeError):
-    """
-    This is the error raised by :class:`cv_bridge.CvBridge` methods when they fail.
-    """
+    """This is the error raised by :class:`cv_bridge.CvBridge` methods when they fail."""
 
     pass
 
@@ -58,8 +58,10 @@ class CvBridge(object):
            >>> im = np.ndarray(shape=(480, 640, n_channels), dtype=dtype)
            >>> msg = br.cv2_to_imgmsg(im)  # Convert the image to a message
            >>> im2 = br.imgmsg_to_cv2(msg) # Convert the message to a new image
-           >>> cmprsmsg = br.cv2_to_compressed_imgmsg(im)  # Convert the image to a compress message
-           >>> im22 = br.compressed_imgmsg_to_cv2(msg) # Convert the compress message to a new image
+           >>> # Convert the image to a compress message
+           >>> cmprsmsg = br.cv2_to_compressed_imgmsg(im)
+           >>> # Convert the compress message to a new image
+           >>> im22 = br.compressed_imgmsg_to_cv2(msg)
            >>> cv2.imwrite("this_was_a_message_briefly.png", im2)
 
     """
@@ -130,10 +132,11 @@ class CvBridge(object):
         :rtype: :cpp:type:`cv::Mat`
         :raises CvBridgeError: when conversion is not possible.
 
-        If desired_encoding is ``"passthrough"``, then the returned image has the same format as img_msg.
-        Otherwise desired_encoding must be one of the standard image encodings
+        If desired_encoding is ``"passthrough"``, then the returned image has the same format
+        as img_msg. Otherwise desired_encoding must be one of the standard image encodings
 
-        This function returns an OpenCV :cpp:type:`cv::Mat` message on success, or raises :exc:`cv_bridge.CvBridgeError` on failure.
+        This function returns an OpenCV :cpp:type:`cv::Mat` message on success,
+        or raises :exc:`cv_bridge.CvBridgeError` on failure.
 
         If the image only has one channel, the shape has size 2 (width and height)
         """
@@ -144,7 +147,7 @@ class CvBridge(object):
         buf = np.ndarray(
             shape=(1, len(str_msg)), dtype=np.uint8, buffer=cmprs_img_msg.data
         )
-        im = cv2.imdecode(buf, cv2.IMREAD_UNCHANGED)
+        im = cv2.imdecode(buf, cv2.IMREAD_ANYCOLOR)
 
         if desired_encoding == "passthrough":
             return im
@@ -171,37 +174,46 @@ class CvBridge(object):
         :rtype: :cpp:type:`cv::Mat`
         :raises CvBridgeError: when conversion is not possible.
 
-        If desired_encoding is ``"passthrough"``, then the returned image has the same format as img_msg.
-        Otherwise desired_encoding must be one of the standard image encodings
+        If desired_encoding is ``"passthrough"``, then the returned image has the same format
+        as img_msg. Otherwise desired_encoding must be one of the standard image encodings
 
-        This function returns an OpenCV :cpp:type:`cv::Mat` message on success, or raises :exc:`cv_bridge.CvBridgeError` on failure.
+        This function returns an OpenCV :cpp:type:`cv::Mat` message on success,
+        or raises :exc:`cv_bridge.CvBridgeError` on failure.
 
         If the image only has one channel, the shape has size 2 (width and height)
         """
-        import cv2
         import numpy as np
 
         dtype, n_channels = self.encoding_to_dtype_with_channels(img_msg.encoding)
         dtype = np.dtype(dtype)
         dtype = dtype.newbyteorder(">" if img_msg.is_bigendian else "<")
+
+        img_buf = (
+            np.asarray(img_msg.data, dtype=dtype)
+            if isinstance(img_msg.data, list)
+            else img_msg.data
+        )
+
         if n_channels == 1:
             im = np.ndarray(
-                shape=(img_msg.height, img_msg.width), dtype=dtype, buffer=img_msg.data
+                shape=(img_msg.height, int(img_msg.step / dtype.itemsize)),
+                dtype=dtype,
+                buffer=img_buf,
             )
+            im = np.ascontiguousarray(im[: img_msg.height, : img_msg.width])
         else:
-            if type(img_msg.data) == str:
-                im = np.ndarray(
-                    shape=(img_msg.height, img_msg.width, n_channels),
-                    dtype=dtype,
-                    buffer=img_msg.data.encode(),
-                )
-            else:
-                im = np.ndarray(
-                    shape=(img_msg.height, img_msg.width, n_channels),
-                    dtype=dtype,
-                    buffer=img_msg.data,
-                )
-        # If the byt order is different between the message and the system.
+            im = np.ndarray(
+                shape=(
+                    img_msg.height,
+                    int(img_msg.step / dtype.itemsize / n_channels),
+                    n_channels,
+                ),
+                dtype=dtype,
+                buffer=img_buf,
+            )
+            im = np.ascontiguousarray(im[: img_msg.height, : img_msg.width, :])
+
+        # If the byte order is different between the message and the system.
         if img_msg.is_bigendian == (sys.byteorder == "little"):
             im = im.byteswap().newbyteorder()
 
@@ -224,8 +236,9 @@ class CvBridge(object):
         :param cvim:      An OpenCV :cpp:type:`cv::Mat`
         :param dst_format:  The format of the image data, one of the following strings:
 
-           * from http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html
-           * from http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html#Mat imread(const string& filename, int flags)
+        http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html
+        http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html#Mat
+        * imread(const string& filename, int flags)
            * bmp, dib
            * jpeg, jpg, jpe
            * jp2
@@ -238,7 +251,8 @@ class CvBridge(object):
         :raises CvBridgeError: when the ``cvim`` has a type that is incompatible with ``format``
 
 
-        This function returns a sensor_msgs::Image message on success, or raises :exc:`cv_bridge.CvBridgeError` on failure.
+        This function returns a sensor_msgs::Image message on success,
+        or raises :exc:`cv_bridge.CvBridgeError` on failure.
         """
         import cv2
         import numpy as np
@@ -249,7 +263,9 @@ class CvBridge(object):
         cmprs_img_msg.format = dst_format
         ext_format = "." + dst_format
         try:
-            cmprs_img_msg.data = np.array(cv2.imencode(ext_format, cvim)[1]).tostring()
+            cmprs_img_msg.data.frombytes(
+                np.array(cv2.imencode(ext_format, cvim)[1]).tobytes()
+            )
         except RuntimeError as e:
             raise CvBridgeError(e)
 
@@ -269,12 +285,12 @@ class CvBridge(object):
         :rtype:           A sensor_msgs.msg.Image message
         :raises CvBridgeError: when the ``cvim`` has a type that is incompatible with ``encoding``
 
-        If encoding is ``"passthrough"``, then the message has the same encoding as the image's OpenCV type.
-        Otherwise desired_encoding must be one of the standard image encodings
+        If encoding is ``"passthrough"``, then the message has the same encoding as the image's
+        OpenCV type. Otherwise desired_encoding must be one of the standard image encodings
 
-        This function returns a sensor_msgs::Image message on success, or raises :exc:`cv_bridge.CvBridgeError` on failure.
+        This function returns a sensor_msgs::Image message on success,
+        or raises :exc:`cv_bridge.CvBridgeError` on failure.
         """
-        import cv2
         import numpy as np
 
         if not isinstance(cvim, (np.ndarray, np.generic)):
@@ -300,7 +316,7 @@ class CvBridge(object):
                 )
         if cvim.dtype.byteorder == ">":
             img_msg.is_bigendian = True
-        img_msg.data = cvim.tostring()
+        img_msg.data.frombytes(cvim.tobytes())
         img_msg.step = len(img_msg.data) // img_msg.height
 
         return img_msg

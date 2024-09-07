@@ -1,14 +1,14 @@
-#include "boost/endian/conversion.hpp"
-#include <boost/make_shared.hpp>
+#include <boost/endian/conversion.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <gtest/gtest.h>
+#include <memory>
 
 TEST(CvBridgeTest, endianness)
 {
   using namespace boost::endian;
 
   // Create an image of the type opposite to the platform
-  sensor_msgs::Image msg;
+  sensor_msgs::msg::Image msg;
   msg.height = 1;
   msg.width = 1;
   msg.encoding = "32SC2";
@@ -32,7 +32,8 @@ TEST(CvBridgeTest, endianness)
   }
 
   // Make sure the values are still the same
-  cv_bridge::CvImageConstPtr img = cv_bridge::toCvShare(boost::make_shared<sensor_msgs::Image>(msg));
+  cv_bridge::CvImageConstPtr img =
+      cv_bridge::toCvShare(std::make_shared<sensor_msgs::msg::Image>(msg));
   EXPECT_EQ(img->image.at<cv::Vec2i>(0, 0)[0], 1);
   EXPECT_EQ(img->image.at<cv::Vec2i>(0, 0)[1], 2);
   // Make sure we cannot share data

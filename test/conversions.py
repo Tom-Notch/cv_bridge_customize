@@ -1,17 +1,12 @@
-#!/usr/bin/env python
 import unittest
 
 import numpy as np
-import rostest
-import sensor_msgs.msg
 from cv_bridge import CvBridge
 from cv_bridge import CvBridgeError
 
 
 class TestConversions(unittest.TestCase):
     def test_mono16_cv2(self):
-        import numpy as np
-
         br = CvBridge()
         im = np.uint8(np.random.randint(0, 255, size=(480, 640, 3)))
         self.assertRaises(
@@ -21,7 +16,6 @@ class TestConversions(unittest.TestCase):
 
     def test_encode_decode_cv2(self):
         import cv2
-        import numpy as np
 
         fmts = [
             cv2.CV_8U,
@@ -49,19 +43,21 @@ class TestConversions(unittest.TestCase):
                         rosmsg = cvb_en.cv2_to_imgmsg(original)
                         newimg = cvb_de.imgmsg_to_cv2(rosmsg)
 
-                        self.assert_(original.dtype == newimg.dtype)
+                        self.assertTrue(original.dtype == newimg.dtype)
                         if channels == 1:
                             # in that case, a gray image has a shape of size 2
-                            self.assert_(original.shape[:2] == newimg.shape[:2])
+                            self.assertTrue(original.shape[:2] == newimg.shape[:2])
                         else:
-                            self.assert_(original.shape == newimg.shape)
-                        self.assert_(len(original.tostring()) == len(newimg.tostring()))
+                            self.assertTrue(original.shape == newimg.shape)
+                        self.assertTrue(
+                            len(original.tostring()) == len(newimg.tostring())
+                        )
 
+    # From:
+    # http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html#Mat
+    # imread(const string& filename, int flags)
     def test_encode_decode_cv2_compressed(self):
-        import numpy as np
-
-        # from: http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html#Mat imread(const string& filename, int flags)
-        # NOTE: remove jp2(a.k.a JPEG2000) as its JASPER codec is disabled within Ubuntu opencv library
+        # FIXME: remove jp2(a.k.a JPEG2000) as its JASPER codec is disabled within Ubuntu opencv library
         # due to security issues, but it works once you rebuild your opencv library with JASPER enabled
         formats = [
             "jpg",
@@ -89,15 +85,18 @@ class TestConversions(unittest.TestCase):
                             original = np.uint8(
                                 np.random.randint(0, 255, size=(h, w, channels))
                             )
+
                         compress_rosmsg = cvb_en.cv2_to_compressed_imgmsg(original, f)
                         newimg = cvb_de.compressed_imgmsg_to_cv2(compress_rosmsg)
-                        self.assert_(original.dtype == newimg.dtype)
+                        self.assertTrue(original.dtype == newimg.dtype)
                         if channels == 1:
                             # in that case, a gray image has a shape of size 2
-                            self.assert_(original.shape[:2] == newimg.shape[:2])
+                            self.assertTrue(original.shape[:2] == newimg.shape[:2])
                         else:
-                            self.assert_(original.shape == newimg.shape)
-                        self.assert_(len(original.tostring()) == len(newimg.tostring()))
+                            self.assertTrue(original.shape == newimg.shape)
+                        self.assertTrue(
+                            len(original.tostring()) == len(newimg.tostring())
+                        )
 
     def test_endianness(self):
         br = CvBridge()
@@ -106,9 +105,14 @@ class TestConversions(unittest.TestCase):
         dtype = dtype.newbyteorder(">")
         img = np.random.randint(0, 255, size=(30, 40))
         msg = br.cv2_to_imgmsg(img.astype(dtype))
-        self.assert_(msg.is_bigendian == True)
-        self.assert_((br.imgmsg_to_cv2(msg) == img).all())
+        self.assertTrue(msg.is_bigendian)
+        self.assertTrue((br.imgmsg_to_cv2(msg) == img).all())
 
 
 if __name__ == "__main__":
-    rosunit.unitrun("opencv_tests", "conversions", TestConversions)
+    suite = unittest.TestSuite()
+    suite.addTest(TestConversions("test_mono16_cv2"))
+    suite.addTest(TestConversions("test_encode_decode_cv2"))
+    suite.addTest(TestConversions("test_encode_decode_cv2_compressed"))
+    suite.addTest(TestConversions("test_endianness"))
+    unittest.TextTestRunner(verbosity=2).run(suite)

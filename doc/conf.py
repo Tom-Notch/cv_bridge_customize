@@ -10,16 +10,13 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-import os
-import sys
-
+# import sys
+# import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # sys.path.append(os.path.abspath('.'))
-
 # -- General configuration -----------------------------------------------------
-
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
@@ -42,8 +39,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "cv_bridge_customize"
-copyright = "2009, Willow Garage, Inc."
+project = "cv_bridge"
+# copyright = u'2009, Willow Garage, Inc.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

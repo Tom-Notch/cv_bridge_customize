@@ -1,9 +1,9 @@
-// -*- mode: c++ -*-
 /*********************************************************************
  * Original color definition is at scikit-image distributed with
  * following license disclaimer:
  *
  * Copyright (C) 2011, the scikit-image team
+ * Copyright (c) 2018 Intel Corporation.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
  *********************************************************************/
 
 #include "cv_bridge/rgb_colors.h"
+#include <opencv2/core/core.hpp>
 
 namespace cv_bridge
 {

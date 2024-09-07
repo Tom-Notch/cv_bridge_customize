@@ -2,6 +2,7 @@
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2012, Willow Garage, Inc.
+ *  Copyright (c) 2018 Intel Corporation.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,6 +34,7 @@
  *********************************************************************/
 
 #include "module.hpp"
+#include <string>
 
 PyObject* mod_opencv;
 
@@ -44,7 +46,8 @@ cvtColor2Wrap(bp::object obj_in, const std::string& encoding_in, const std::stri
   convert_to_CvMat2(obj_in.ptr(), mat_in);
 
   // Call cv_bridge for color conversion
-  cv_bridge::CvImagePtr cv_image(new cv_bridge::CvImage(std_msgs::Header(), encoding_in, mat_in));
+  cv_bridge::CvImagePtr cv_image(new cv_bridge::CvImage(
+      std_msgs::msg::Header(), encoding_in, mat_in));
 
   cv::Mat mat = cv_bridge::cvtColor(cv_image, encoding_out)->image;
 
@@ -52,18 +55,20 @@ cvtColor2Wrap(bp::object obj_in, const std::string& encoding_in, const std::stri
 }
 
 bp::object
-cvtColorForDisplayWrap(bp::object obj_in,
-                       const std::string& encoding_in,
-                       const std::string& encoding_out,
-                       bool do_dynamic_scaling = false,
-                       double min_image_value = 0.0,
-                       double max_image_value = 0.0)
+cvtColorForDisplayWrap(
+    bp::object obj_in,
+    const std::string& encoding_in,
+    const std::string& encoding_out,
+    bool do_dynamic_scaling = false,
+    double min_image_value = 0.0,
+    double max_image_value = 0.0)
 {
   // Convert the Python input to an image
   cv::Mat mat_in;
   convert_to_CvMat2(obj_in.ptr(), mat_in);
 
-  cv_bridge::CvImagePtr cv_image(new cv_bridge::CvImage(std_msgs::Header(), encoding_in, mat_in));
+  cv_bridge::CvImagePtr cv_image(new cv_bridge::CvImage(
+      std_msgs::msg::Header(), encoding_in, mat_in));
 
   cv_bridge::CvtColorForDisplayOptions options;
   options.do_dynamic_scaling = do_dynamic_scaling;
